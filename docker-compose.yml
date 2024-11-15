@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db 
+
+  books:
+    build:
+      context: ./books
+    container_name: books_service
+    ports:
+      - "3100:3004"  # Host port changed to 3100
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/books
+    depends_on:
+      - mongodb
+    volumes:
+      - ./db:/app/db  # Mount the db folder for shared access
+
+  customers:
+    build:
+      context: ./customers
+    container_name: customers_service
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/customers_service_db
+    depends_on:
+      - mongodb
+    volumes:
+      - ./db:/app/db  # Mount the db folder for shared access
+
+  orders:
+    build:
+      context: ./orders
+    container_name: orders_service
+    ports:
+      - "9000:9000"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/orders_service_db
+    depends_on:
+      - mongodb
+    volumes:
+      - ./db:/app/db  # Mount the db folder for shared access
+
+volumes:
+  mongo_data:

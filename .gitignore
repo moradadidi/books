@@ -1,0 +1,5 @@
+node_modules/
+.env
+*.log
+docker-data/
+mongo_data/
