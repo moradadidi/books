@@ -1,6 +1,6 @@
 require("dotenv").config();
 const express = require("express");
-
+const swaggerSetup = require('./swagger');
 require("./db/db");
 
 const Customer = require("./Customer");
@@ -10,6 +10,26 @@ const port = 5000;
 
 app.use(express.json());
 
+/**
+ * @swagger
+ * /customers:
+ *   get:
+ *     summary: Get all customers
+ *     responses:
+ *       200:
+ *         description: List of customers
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   name:
+ *                     type: string
+ */
 app.get("/customers", async (req, res) => {
     try {
         const customers = await Customer.find();
@@ -19,6 +39,25 @@ app.get("/customers", async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /customers:
+ *   post:
+ *     summary: Create a new customer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               age:
+ *                 type: integer
+ *               address:
+ *                 type: string
+ */
 app.post("/customers", async (req, res) => {
     try {
         const customer = new Customer(req.body);
@@ -28,6 +67,22 @@ app.post("/customers", async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 });
+
+/**
+ * @swagger
+ * /customers/{id}:
+ *   get:
+ *     summary: Get a customer by ID
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         description: ID of the customer to retrieve
+ *         required: true
+ *         schema:  
+ *           type: integer
+ *     responses:
+ *       200:
+ */
 
 app.get("/customers/:id", async (req, res) => {
     try {
@@ -43,6 +98,21 @@ app.get("/customers/:id", async (req, res) => {
 });
 
 
+/**
+ * @swagger
+ * /customers/{id}:
+ *   delete:
+ *     summary: Delete a customer by ID
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         description: ID of the customer to delete
+ *         required: true
+ *         schema:  
+ *           type: integer
+ *      responses:
+ *        200:
+ */
 app.delete("/customers/:id", async (req, res) => {
     try {
         const customer = await Customer.findByIdAndDelete(req.params.id);
@@ -55,6 +125,35 @@ app.delete("/customers/:id", async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
+/**
+ * @swagger
+ * /customers/{id}:
+ *   put:
+ *     summary: Update a customer by ID
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         description: ID of the customer to update
+ *         required: true
+ *         schema:  
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               age:
+ *                 type: integer
+ *               address:
+ *                 type: string
+ *     responses:
+ *       200:
+ */
 
 app.put("/customers/:id", async (req, res) => {
     try {
@@ -69,6 +168,10 @@ app.put("/customers/:id", async (req, res) => {
     }
 });
 
+swaggerSetup(app);
+
+
 app.listen(port, () => {
     console.log(`Server is running on port ${port} this is costomer service`);
+    console.log(`API docs available at http://localhost:${port}/api-docs`);
 });

@@ -2,10 +2,15 @@
 FROM node:16
 
 # Set working directory in the container
-WORKDIR /app
+WORKDIR /app/
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
+
+# # Configure npm
+# RUN npm config set timeout 600000 && \
+#     npm config set retry 5 && \
+#     npm config set strict-ssl false
 
 # Install dependencies
 RUN npm install
